@@ -1,0 +1,668 @@
+{
+	"info": {
+		"_postman_id": "ai-journal-api-collection",
+		"name": "AI Journal API",
+		"description": "Complete API collection for AI Journal mobile app backend. Includes authentication (password and biometric/PIN login), email verification, password reset, and onboarding endpoints.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "ai-journal"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Signup",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set('accessToken', jsonData.accessToken);",
+									"    pm.environment.set('refreshToken', jsonData.refreshToken);",
+									"    pm.environment.set('deviceId', jsonData.deviceId);",
+									"    pm.environment.set('userId', jsonData.user.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"device\": {\n    \"fingerprint\": \"device_fingerprint_hash\",\n    \"platform\": \"IOS\",\n    \"model\": \"iPhone 14 Pro\",\n    \"osVersion\": \"17.0\",\n    \"appVersion\": \"1.0.0\"\n  }\n}",
+						"options": {
+							"raw": {
+								"language": "json"
+							}
+						}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/auth/signup",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"signup"
+							]
+						},
+						"description": "Creates a new user account, registers device, and initializes onboarding. **Sends email verification OTP to user's email.**\n\n**Rate Limiting:** 5 requests per minute per IP\n\n**Note:** After signup, user receives OTP in email. User must verify email using `/v1/auth/verify-email` endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set('accessToken', jsonData.accessToken);",
+									"    pm.environment.set('refreshToken', jsonData.refreshToken);",
+									"    pm.environment.set('deviceId', jsonData.deviceId);",
+									"    pm.environment.set('userId', jsonData.user.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"rememberMe\": true,\n  \"device\": {\n    \"fingerprint\": \"device_fingerprint_hash\",\n    \"platform\": \"IOS\",\n    \"model\": \"iPhone 14 Pro\",\n    \"osVersion\": \"17.0\",\n    \"appVersion\": \"1.0.0\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Authenticates user and returns tokens with device/onboarding info.\n\n**Rate Limiting:** 10 requests per minute per IP"
+					},
+					"response": []
+				},
+				{
+					"name": "Biometric/PIN Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set('accessToken', jsonData.accessToken);",
+									"    pm.environment.set('refreshToken', jsonData.refreshToken);",
+									"    pm.environment.set('deviceId', jsonData.deviceId);",
+									"    pm.environment.set('userId', jsonData.user.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"john@example.com\",\n  \"loginMethod\": \"BIOMETRIC\",\n  \"device\": {\n    \"fingerprint\": \"device_fingerprint_hash\",\n    \"platform\": \"IOS\",\n    \"model\": \"iPhone 14 Pro\",\n    \"osVersion\": \"17.0\",\n    \"appVersion\": \"1.0.0\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/auth/login/biometric",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"login",
+								"biometric"
+							]
+						},
+						"description": "Login using biometric or PIN. Requires valid refresh token from previous password login.\n\n**Valid loginMethod values:** `BIOMETRIC`, `PIN`\n\n**Requirements:**\n- User must have previously logged in with password on this device\n- Device must have valid refresh token\n- Biometric/PIN must be enabled during onboarding\n\n**Rate Limiting:** 10 requests per minute per IP"
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"{{refreshToken}}\",\n  \"deviceId\": \"{{deviceId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/auth/refresh",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"refresh"
+							]
+						},
+						"description": "Refreshes access token and rotates refresh token.\n\n**Rate Limiting:** 20 requests per minute per user"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"{{refreshToken}}\",\n  \"deviceId\": \"{{deviceId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/auth/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Revokes refresh token and logs out user.\n\n**Authentication:** Required (Bearer token)"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints for user signup, login (password and biometric/PIN), token refresh, and logout."
+		},
+		{
+			"name": "Email Verification",
+			"item": [
+				{
+					"name": "Verify Email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    console.log('Email verified:', jsonData.verified);",
+									"    console.log('Message:', jsonData.message);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"john@example.com\",\n  \"otp\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/auth/verify-email",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"verify-email"
+							]
+						},
+						"description": "Verify user email address using OTP sent during signup.\n\n**OTP Details:**\n- 6-digit code sent to user's email\n- Expires in 10 minutes\n- Max 5 verification attempts\n- One-time use (consumed after verification)\n\n**Rate Limiting:** 5 requests per minute per email+IP combination"
+					},
+					"response": []
+				},
+				{
+					"name": "Resend Verification OTP",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    console.log('OTP sent. Cooldown:', jsonData.cooldownSeconds, 'seconds');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"john@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/auth/resend-verification",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"resend-verification"
+							]
+						},
+						"description": "Resend email verification OTP. **Always returns 200**.\n\n**Cooldown:** 60 seconds between requests\n\n**Rate Limiting:** 3 requests per minute per email+IP combination"
+					},
+					"response": []
+				}
+			],
+			"description": "Email verification endpoints. OTP is sent automatically during signup."
+		},
+		{
+			"name": "Password Reset",
+			"item": [
+				{
+					"name": "Request Password Reset (Send OTP)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    console.log('OTP sent. Cooldown:', jsonData.cooldownSeconds, 'seconds');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"john@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/auth/password-reset/request",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"password-reset",
+								"request"
+							]
+						},
+						"description": "Sends OTP to user's email for password reset. **Always returns 200** to prevent email enumeration.\n\n**Rate Limiting:** 3 requests per minute per email+IP combination"
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Password Reset OTP",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set('resetToken', jsonData.resetToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"john@example.com\",\n  \"otp\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/auth/password-reset/verify",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"password-reset",
+								"verify"
+							]
+						},
+						"description": "Verifies OTP and returns reset token.\n\n**Rate Limiting:** 5 requests per minute per email+IP combination"
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm Password Reset",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"resetToken\": \"{{resetToken}}\",\n  \"newPassword\": \"NewSecurePass123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/auth/password-reset/confirm",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"password-reset",
+								"confirm"
+							]
+						},
+						"description": "Resets password using reset token. **Revokes all refresh tokens for user** (forces re-login on all devices)."
+					},
+					"response": []
+				}
+			],
+			"description": "Password reset flow with OTP verification."
+		},
+		{
+			"name": "Onboarding",
+			"item": [
+				{
+					"name": "Get Onboarding Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/onboarding/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"onboarding",
+								"status"
+							]
+						},
+						"description": "Returns current onboarding status for authenticated user.\n\n**Authentication:** Required"
+					},
+					"response": []
+				},
+				{
+					"name": "Set Lock Method",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"lockMethod\": \"PIN\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/onboarding/security/method",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"onboarding",
+								"security",
+								"method"
+							]
+						},
+						"description": "Sets the lock method (PIN, Pattern, or Password) and moves to next step.\n\n**Valid values:** `PIN`, `PATTERN`, `PASSWORD`\n\n**Authentication:** Required"
+					},
+					"response": []
+				},
+				{
+					"name": "Set Passcode Created",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"lockEnabled\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/onboarding/security/passcode",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"onboarding",
+								"security",
+								"passcode"
+							]
+						},
+						"description": "Marks passcode as created. **Server does NOT store the actual passcode** - it's stored locally on device.\n\n**Authentication:** Required"
+					},
+					"response": []
+				},
+				{
+					"name": "Enable/Disable Biometric",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"enabled\": true,\n  \"deviceId\": \"{{deviceId}}\",\n  \"biometricType\": \"FACE_ID\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/onboarding/security/biometric",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"onboarding",
+								"security",
+								"biometric"
+							]
+						},
+						"description": "Enables or disables biometric authentication for the device.\n\n**Valid biometricType values:** `FACE_ID`, `FINGERPRINT`, `UNKNOWN`\n\n**Authentication:** Required"
+					},
+					"response": []
+				},
+				{
+					"name": "Complete Onboarding",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"completed\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/onboarding/complete",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"onboarding",
+								"complete"
+							]
+						},
+						"description": "Marks onboarding as completed.\n\n**Authentication:** Required"
+					},
+					"response": []
+				}
+			],
+			"description": "Onboarding endpoints for security setup. All endpoints require authentication."
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://193.160.119.196:8001",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refreshToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "deviceId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "resetToken",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

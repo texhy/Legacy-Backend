@@ -1,0 +1,39 @@
+# Exclude virtual environment
+venv/
+env/
+.venv/
+
+# Exclude Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Exclude database
+db.sqlite3
+*.db
+
+# Exclude static files (can be regenerated)
+staticfiles/
+media/
+
+# Exclude IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Exclude OS files
+.DS_Store
+Thumbs.db
+
+# Exclude logs
+*.log
+
+# Exclude test results
+test_results.json
+
+# Keep .env but you might want to exclude it
+# .env
+

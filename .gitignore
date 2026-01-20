@@ -1,0 +1,74 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+/media
+/staticfiles
+/static
+
+# Test files
+test_*.py
+*_test.py
+*test*.py
+test_*.sh
+*test*.sh
+test_*.json
+*test*.json
+
+# Markdown files
+*.md
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Postman collections (optional - uncomment if you want to ignore these too)
+# *.postman_collection.json
+
+# Data files (keep Postman collections and schema, ignore test data)
+all_users_data.json
+email_verification_test_results.json
+
+# OpenAPI schema (optional - uncomment if you want to ignore)
+# openapi-schema.json

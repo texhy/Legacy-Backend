@@ -1,0 +1,494 @@
+{
+	"info": {
+		"_postman_id": "libraries-chapters-api-collection",
+		"name": "Libraries & Chapters API",
+		"description": "Complete API collection for Library and Chapter management in AI Journal mobile app. Includes CRUD operations for libraries and chapters with pagination support.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "ai-journal"
+	},
+	"item": [
+		{
+			"name": "Libraries",
+			"item": [
+				{
+					"name": "Create Library",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set('libraryId', jsonData.id);",
+									"    console.log('Library created:', jsonData.title);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Book of Jason\",\n  \"colorTheme\": \"#f3242a\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/libraries/create",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"libraries",
+								"create"
+							]
+						},
+						"description": "Create a new library with title and theme color.\n\n**Request Body:**\n- `title` (string, required): Library title\n- `colorTheme` (string, optional): Hex color code (e.g., #f3242a). Defaults to #000000 if not provided.\n\n**Response 201:**\nReturns created library with id, title, colorTheme, isArchived, createdAt, updatedAt.\n\n**Authentication:** Required (Bearer token)"
+					},
+					"response": []
+				},
+				{
+					"name": "List Libraries (Active)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/libraries?status=active&page=1&page_size=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"libraries"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "active",
+									"description": "Filter by status: 'active' or 'archived' (default: 'active')"
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								},
+								{
+									"key": "page_size",
+									"value": "20",
+									"description": "Items per page (default: 20, max: 100)"
+								}
+							]
+						},
+						"description": "Get paginated list of active libraries.\n\n**Query Parameters:**\n- `status` (string, optional): \"active\" or \"archived\" (default: \"active\")\n- `page` (integer, optional): Page number (default: 1)\n- `page_size` (integer, optional): Items per page (default: 20, max: 100)\n\n**Response 200:**\nReturns paginated response with count, next, previous, and results array.\n\n**Authentication:** Required (Bearer token)"
+					},
+					"response": []
+				},
+				{
+					"name": "List Libraries (Archived)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/libraries?status=archived&page=1&page_size=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"libraries"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "archived",
+									"description": "Filter by status: 'active' or 'archived'"
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								},
+								{
+									"key": "page_size",
+									"value": "20",
+									"description": "Items per page"
+								}
+							]
+						},
+						"description": "Get paginated list of archived libraries.\n\n**Query Parameters:**\n- `status` (string): \"archived\"\n- `page` (integer, optional): Page number\n- `page_size` (integer, optional): Items per page\n\n**Authentication:** Required (Bearer token)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Library",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Updated Library Title\",\n  \"colorTheme\": \"#00ff00\",\n  \"isArchived\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/libraries/{{libraryId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"libraries",
+								"{{libraryId}}"
+							]
+						},
+						"description": "Update library title, theme color, or archive status.\n\n**Request Body (all fields optional):**\n- `title` (string): New library title\n- `colorTheme` (string): New hex color code (e.g., #f3242a)\n- `isArchived` (boolean): Archive/unarchive library\n\n**Response 200:**\nReturns updated library object.\n\n**Response 404:**\nLibrary not found or doesn't belong to user.\n\n**Authentication:** Required (Bearer token)"
+					},
+					"response": []
+				}
+			],
+			"description": "Library management endpoints. Libraries are user's content containers (books/journals)."
+		},
+		{
+			"name": "Chapters",
+			"item": [
+				{
+					"name": "Create Chapter",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set('chapterId', jsonData.id);",
+									"    console.log('Chapter created:', jsonData.title);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Chapter Title\",\n  \"contentFull\": \"This is the full content of the chapter. It can be as long as needed. The preview will be auto-generated from the first 100 characters if not provided.\",\n  \"contentPreview\": \"Optional preview text. If not provided, will be auto-generated from contentFull.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/libraries/{{libraryId}}/chapters/create",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"libraries",
+								"{{libraryId}}",
+								"chapters",
+								"create"
+							]
+						},
+						"description": "Create a new chapter in a library.\n\n**Request Body:**\n- `title` (string, required): Chapter title\n- `contentFull` (string, required): Full content of the chapter\n- `contentPreview` (string, optional): Preview/snippet text. If not provided, will be auto-generated from first 100 characters of contentFull.\n\n**Response 201:**\nReturns created chapter with id, libraryId, title, contentPreview, isArchived, createdAt, updatedAt.\n\n**Response 404:**\nLibrary not found or doesn't belong to user.\n\n**Authentication:** Required (Bearer token)"
+					},
+					"response": []
+				},
+				{
+					"name": "List Chapters by Library",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/libraries/{{libraryId}}/chapters?page=1&page_size=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"libraries",
+								"{{libraryId}}",
+								"chapters"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								},
+								{
+									"key": "page_size",
+									"value": "20",
+									"description": "Items per page (default: 20, max: 100)"
+								}
+							]
+						},
+						"description": "Get paginated list of chapters in a specific library.\n\n**Query Parameters:**\n- `page` (integer, optional): Page number (default: 1)\n- `page_size` (integer, optional): Items per page (default: 20, max: 100)\n\n**Response 200:**\nReturns paginated response with chapters (list view - includes contentPreview but not contentFull).\n\n**Response 404:**\nLibrary not found or doesn't belong to user.\n\n**Note:** Only returns non-archived chapters. Sorted by updated_at (most recent first).\n\n**Authentication:** Required (Bearer token)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Recent Chapters",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/libraries/chapters/recent?page=1&page_size=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"libraries",
+								"chapters",
+								"recent"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								},
+								{
+									"key": "page_size",
+									"value": "20",
+									"description": "Items per page (default: 20, max: 100)"
+								}
+							]
+						},
+						"description": "Get paginated list of recent chapters across all user's active libraries. Used for Home Page display.\n\n**Query Parameters:**\n- `page` (integer, optional): Page number (default: 1)\n- `page_size` (integer, optional): Items per page (default: 20, max: 100)\n\n**Response 200:**\nReturns paginated response with recent chapters from all active libraries.\n\n**Note:**\n- Only includes chapters from active (non-archived) libraries\n- Only includes non-archived chapters\n- Sorted by updated_at (most recent first)\n- List view format (includes contentPreview but not contentFull)\n\n**Authentication:** Required (Bearer token)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Chapter Detail",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/libraries/chapters/{{chapterId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"libraries",
+								"chapters",
+								"{{chapterId}}"
+							]
+						},
+						"description": "Get chapter details including full content.\n\n**Response 200:**\nReturns chapter with id, libraryId, title, contentPreview, contentFull, isArchived, createdAt, updatedAt.\n\n**Response 404:**\nChapter not found or doesn't belong to user.\n\n**Authentication:** Required (Bearer token)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Chapter",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Updated Chapter Title\",\n  \"contentFull\": \"Updated full content of the chapter.\",\n  \"contentPreview\": \"Updated preview text\",\n  \"isArchived\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/libraries/chapters/{{chapterId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"libraries",
+								"chapters",
+								"{{chapterId}}"
+							]
+						},
+						"description": "Update chapter title, content, or archive status.\n\n**Request Body (all fields optional):**\n- `title` (string): New chapter title\n- `contentFull` (string): Updated full content\n- `contentPreview` (string): Updated preview text\n- `isArchived` (boolean): Archive/unarchive chapter\n\n**Note:** If contentFull is updated but contentPreview is not provided, preview will be auto-generated from the first 100 characters of contentFull.\n\n**Response 200:**\nReturns updated chapter with full details (includes contentFull).\n\n**Response 404:**\nChapter not found or doesn't belong to user.\n\n**Authentication:** Required (Bearer token)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Chapter",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/libraries/chapters/{{chapterId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"libraries",
+								"chapters",
+								"{{chapterId}}"
+							]
+						},
+						"description": "Hard delete a chapter.\n\n**Response 200:**\n```json\n{\n  \"success\": true,\n  \"message\": \"Chapter deleted successfully\"\n}\n```\n\n**Response 404:**\nChapter not found or doesn't belong to user.\n\n**Warning:** This is a hard delete. The chapter will be permanently removed from the database.\n\n**Authentication:** Required (Bearer token)"
+					},
+					"response": []
+				}
+			],
+			"description": "Chapter management endpoints. Chapters are individual entries within libraries."
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://193.160.119.196:8001",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "libraryId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "chapterId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
