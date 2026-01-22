@@ -20,12 +20,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-in-production-!@#$%^&*()')
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 # Allow all hosts for development/testing - restrict in production
 # For testing: explicitly allow server IP and all hosts
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,193.160.119.196,*').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,193.160.119.196,legacy.classicprogrammers.com,*').split(',')
 # Note: '*' allows all hosts for testing only - restrict in production
 # For production, use: ALLOWED_HOSTS = ['your-domain.com', 'api.your-domain.com', '193.160.119.196']
 
@@ -202,9 +201,22 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:3000",
     "http://127.0.0.1:8000",
+    "https://legacy.classicprogrammers.com",
+    "http://legacy.classicprogrammers.com",
 ]
 
+# Allow all origins for WebSocket connections (for mobile apps)
+CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_ALLOW_ALL', 'False') == 'True'
+
 CORS_ALLOW_CREDENTIALS = True
+
+# CSRF Trusted Origins (required for Django 4.x with HTTPS)
+CSRF_TRUSTED_ORIGINS = [
+    "https://legacy.classicprogrammers.com",
+    "http://legacy.classicprogrammers.com",
+    "http://localhost:3000",
+    "http://localhost:8000",
+]
 
 # JWT Settings
 # NOTE: Access token set to 5 days for testing. Change back to 15 minutes for production.

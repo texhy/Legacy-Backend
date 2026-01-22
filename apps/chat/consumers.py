@@ -97,9 +97,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'message': 'Invalid JSON'
             }))
         except Exception as e:
-            # #region agent log
-            import traceback as _tb; open('/home/hassan/Desktop/Classic SH/AI Journal Workflow/backend/.cursor/debug.log', 'a').write(json.dumps({"location": "consumers.py:receive:exception", "message": "Exception in receive", "data": {"error": str(e), "traceback": _tb.format_exc()}, "hypothesisId": "D", "timestamp": __import__('time').time()}) + '\n')
-            # #endregion
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error in WebSocket receive: {str(e)}", exc_info=True)
             await self.send(text_data=json.dumps({
                 'type': 'error',
                 'message': f'Error: {str(e)}'
@@ -107,9 +107,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
     
     async def handle_join(self, data):
         """Handle join chapter command."""
-        # #region agent log
-        import json as _json; open('/home/hassan/Desktop/Classic SH/AI Journal Workflow/backend/.cursor/debug.log', 'a').write(_json.dumps({"location": "consumers.py:handle_join:entry", "message": "handle_join called", "data": {"data": str(data)}, "hypothesisId": "B", "timestamp": __import__('time').time()}) + '\n')
-        # #endregion
         chapter_id = data.get('chapter_id')
         
         if not chapter_id:
@@ -119,11 +116,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }))
             return
         
-        # #region agent log
-        open('/home/hassan/Desktop/Classic SH/AI Journal Workflow/backend/.cursor/debug.log', 'a').write(_json.dumps({"location": "consumers.py:handle_join:before_verify", "message": "About to call verify_and_get_chapter_info", "data": {"chapter_id": str(chapter_id), "user_id": str(self.user.id)}, "hypothesisId": "C", "timestamp": __import__('time').time()}) + '\n')
-        # #endregion
         # Verify user owns this chapter and get all needed info in one call
-        result = await self.verify_and_get_chapter_info(chapter_id, self.user.id)
+        try:
+            result = await self.verify_and_get_chapter_info(chapter_id, self.user.id)
+        except Exception as e:
+            await self.send(text_data=json.dumps({
+                'type': 'error',
+                'message': f'Error joining chapter: {str(e)}'
+            }))
+            return
         if not result:
             await self.send(text_data=json.dumps({
                 'type': 'error',
@@ -289,23 +290,20 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def verify_and_get_chapter_info(self, chapter_id, user_id):
         """Verify chapter exists, user owns it, and return title and library_id."""
-        # #region agent log
-        import json as _json; open('/home/hassan/Desktop/Classic SH/AI Journal Workflow/backend/.cursor/debug.log', 'a').write(_json.dumps({"location": "consumers.py:verify_and_get_chapter_info:entry", "message": "Entering verify_and_get_chapter_info", "data": {"chapter_id": str(chapter_id), "user_id": str(user_id)}, "hypothesisId": "A", "timestamp": __import__('time').time()}) + '\n')
-        # #endregion
         try:
             chapter = Chapter.objects.select_related('library').get(id=chapter_id)
-            # #region agent log
-            open('/home/hassan/Desktop/Classic SH/AI Journal Workflow/backend/.cursor/debug.log', 'a').write(_json.dumps({"location": "consumers.py:verify_and_get_chapter_info:after_query", "message": "Chapter fetched successfully", "data": {"chapter_title": chapter.title, "library_user_id": str(chapter.library.user_id)}, "hypothesisId": "A", "timestamp": __import__('time').time()}) + '\n')
-            # #endregion
             # Check ownership
             if chapter.library.user_id != user_id:
                 return None
             # Return title and library_id
             return (chapter.title, str(chapter.library_id))
         except Chapter.DoesNotExist:
-            # #region agent log
-            open('/home/hassan/Desktop/Classic SH/AI Journal Workflow/backend/.cursor/debug.log', 'a').write(_json.dumps({"location": "consumers.py:verify_and_get_chapter_info:not_found", "message": "Chapter not found", "data": {"chapter_id": str(chapter_id)}, "hypothesisId": "A", "timestamp": __import__('time').time()}) + '\n')
-            # #endregion
+            return None
+        except Exception as e:
+            # Log error but don't expose details to client
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error verifying chapter {chapter_id} for user {user_id}: {str(e)}")
             return None
     
     @database_sync_to_async
