@@ -7,7 +7,7 @@ from django.utils import timezone
 
 
 class Library(models.Model):
-    """Library model for user's content containers."""
+    """Enhanced Library model with AI summary."""
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(
@@ -18,6 +18,14 @@ class Library(models.Model):
     )
     title = models.CharField(max_length=255)
     color_theme = models.CharField(max_length=7, default='#000000', help_text='Hex color code')
+    
+    # NEW: AI-generated high-level summary of the entire library
+    summary_text = models.TextField(
+        blank=True, 
+        default='', 
+        help_text='AI-generated abstract of all chapters in this library'
+    )
+    
     is_archived = models.BooleanField(default=False, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -35,7 +43,7 @@ class Library(models.Model):
 
 
 class Chapter(models.Model):
-    """Chapter model for library content entries."""
+    """Enhanced Chapter model for chat-based content."""
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     library = models.ForeignKey(
@@ -45,13 +53,30 @@ class Chapter(models.Model):
         db_index=True
     )
     title = models.CharField(max_length=255)
+    
+    # CHANGED: These now serve different purposes
     content_preview = models.TextField(
         blank=True,
-        help_text='Preview/snippet text for card display'
+        help_text='Auto-generated preview'
     )
     content_full = models.TextField(
-        help_text='Full content of the chapter'
+        blank=True,
+        help_text='Deprecated - use Messages for chat-based content'
     )
+    
+    # NEW: Rolling summary of conversation (compressed memory)
+    summary_text = models.TextField(
+        blank=True,
+        default='',
+        help_text='AI-compressed summary of older messages'
+    )
+    
+    # NEW: Counter for triggering memory compression
+    message_count = models.IntegerField(
+        default=0,
+        help_text='Triggers summarization every 20 messages'
+    )
+    
     is_archived = models.BooleanField(default=False, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, db_index=True)

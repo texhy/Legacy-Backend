@@ -9,12 +9,13 @@ class LibrarySerializer(serializers.ModelSerializer):
     """Serializer for library responses."""
     colorTheme = serializers.CharField(source='color_theme', read_only=True)
     isArchived = serializers.BooleanField(source='is_archived', read_only=True)
+    summaryText = serializers.CharField(source='summary_text', read_only=True)
     createdAt = serializers.DateTimeField(source='created_at', read_only=True)
     updatedAt = serializers.DateTimeField(source='updated_at', read_only=True)
     
     class Meta:
         model = Library
-        fields = ['id', 'title', 'colorTheme', 'isArchived', 'createdAt', 'updatedAt']
+        fields = ['id', 'title', 'colorTheme', 'summaryText', 'isArchived', 'createdAt', 'updatedAt']
         read_only_fields = ['id', 'createdAt', 'updatedAt']
 
 
@@ -93,6 +94,8 @@ class ChapterDetailSerializer(serializers.ModelSerializer):
     """Serializer for chapter detail view (includes full content)."""
     contentPreview = serializers.CharField(source='content_preview', read_only=True)
     contentFull = serializers.CharField(source='content_full', read_only=True)
+    summaryText = serializers.CharField(source='summary_text', read_only=True)
+    messageCount = serializers.IntegerField(source='message_count', read_only=True)
     isArchived = serializers.BooleanField(source='is_archived', read_only=True)
     libraryId = serializers.UUIDField(source='library_id', read_only=True)
     createdAt = serializers.DateTimeField(source='created_at', read_only=True)
@@ -102,7 +105,7 @@ class ChapterDetailSerializer(serializers.ModelSerializer):
         model = Chapter
         fields = [
             'id', 'libraryId', 'title', 'contentPreview', 'contentFull',
-            'isArchived', 'createdAt', 'updatedAt'
+            'summaryText', 'messageCount', 'isArchived', 'createdAt', 'updatedAt'
         ]
         read_only_fields = ['id', 'libraryId', 'createdAt', 'updatedAt']
 

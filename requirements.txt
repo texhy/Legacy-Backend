@@ -9,4 +9,24 @@ drf-spectacular==0.27.0
 django-ratelimit==4.1.0
 gunicorn==21.2.0
 whitenoise==6.6.0
+# Real-time WebSocket support
+channels==4.3.2
+channels-redis==4.3.0
+redis==7.1.0
+daphne==4.2.1
 
+# AI/ML Stack
+langchain>=1.2.0
+langchain-openai>=1.1.0
+langgraph>=1.0.0
+openai>=2.0.0
+
+# Task Queue
+celery>=5.6.0
+
+# NLP & Text Processing
+fuzzywuzzy>=0.18.0
+python-Levenshtein>=0.27.0
+
+# WebSocket Testing
+websockets>=16.0

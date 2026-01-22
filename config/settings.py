@@ -33,6 +33,7 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,193.160.119.196,
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',  # ASGI server (must be first for runserver override)
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Third-party apps
+    'channels',  # Django Channels for WebSocket support
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
@@ -49,6 +51,9 @@ INSTALLED_APPS = [
     'apps.devices',
     'apps.onboarding',
     'apps.libraries',
+    'apps.chat',
+    'apps.cognitive',
+    'apps.ai',
 ]
 
 MIDDLEWARE = [
@@ -245,6 +250,33 @@ DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'm.hassan246810@gmail.com')
 # This OTP will work for both email verification and password reset
 # Frontend can use this OTP repeatedly without needing to request new OTPs
 TEST_OTP = os.getenv('TEST_OTP', '123456') if DEBUG else None
+
+# OpenAI Configuration
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
+OPENAI_MODEL = os.getenv('OPENAI_MODEL', 'gpt-4o')
+OPENAI_MAX_TOKENS = int(os.getenv('OPENAI_MAX_TOKENS', '2000'))
+
+# Django Channels Configuration (WebSocket support)
+ASGI_APPLICATION = 'config.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [(os.getenv('REDIS_HOST', 'localhost'), int(os.getenv('REDIS_PORT', 6379)))],
+        },
+    },
+}
+
+# Celery Configuration
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60  # 30 minutes
 
 # Security settings for production
 if not DEBUG:

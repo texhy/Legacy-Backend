@@ -410,3 +410,64 @@ class ChapterDetailView(APIView):
             {'success': True, 'message': 'Chapter deleted successfully'},
             status=status.HTTP_200_OK
         )
+
+
+class LibrarySummaryView(APIView):
+    """Get library summary."""
+    permission_classes = [IsAuthenticated]
+    
+    @extend_schema(
+        summary="Get Library Summary",
+        description="Get the AI-generated summary of a library.",
+        responses={
+            200: {'description': 'Library summary'},
+            404: {'description': 'Library not found'}
+        }
+    )
+    def get(self, request, library_id):
+        """Get library summary."""
+        try:
+            library = Library.objects.get(id=library_id, user=request.user)
+        except Library.DoesNotExist:
+            return Response(
+                {'error': {'code': 404, 'message': 'Library not found'}},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        return Response({
+            'library_id': str(library.id),
+            'title': library.title,
+            'summary_text': library.summary_text or '',
+            'has_summary': bool(library.summary_text)
+        }, status=status.HTTP_200_OK)
+
+
+class ChapterSummaryView(APIView):
+    """Get chapter summary."""
+    permission_classes = [IsAuthenticated]
+    
+    @extend_schema(
+        summary="Get Chapter Summary",
+        description="Get the AI-compressed summary of a chapter's conversation.",
+        responses={
+            200: {'description': 'Chapter summary'},
+            404: {'description': 'Chapter not found'}
+        }
+    )
+    def get(self, request, chapter_id):
+        """Get chapter summary."""
+        try:
+            chapter = Chapter.objects.get(id=chapter_id, library__user=request.user)
+        except Chapter.DoesNotExist:
+            return Response(
+                {'error': {'code': 404, 'message': 'Chapter not found'}},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        return Response({
+            'chapter_id': str(chapter.id),
+            'title': chapter.title,
+            'summary_text': chapter.summary_text or '',
+            'message_count': chapter.message_count,
+            'has_summary': bool(chapter.summary_text)
+        }, status=status.HTTP_200_OK)

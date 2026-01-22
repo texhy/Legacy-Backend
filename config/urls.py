@@ -22,6 +22,8 @@ urlpatterns = [
     path('v1/auth/', include('apps.accounts.urls')),
     path('v1/onboarding/', include('apps.onboarding.urls')),
     path('v1/libraries/', include('apps.libraries.urls')),
+    path('v1/', include('apps.chat.urls')),
+    path('v1/', include('apps.cognitive.urls')),
 ]
 
 # Serve media files in development
