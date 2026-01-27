@@ -21,6 +21,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
     
     async def connect(self):
         """Handle WebSocket connection."""
+        # Initialize attributes early to prevent AttributeError in disconnect
+        self.user = None
+        self.chapter_id = None
+        self.chapter_group_name = None
+        self.library_id = None
+        
         # Get JWT token from query string
         query_string = self.scope.get('query_string', b'').decode()
         token = None
@@ -39,10 +45,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if not self.user:
             await self.close()
             return
-        
-        # Store chapter_id from scope (will be set on join command)
-        self.chapter_id = None
-        self.chapter_group_name = None
         
         await self.accept()
         

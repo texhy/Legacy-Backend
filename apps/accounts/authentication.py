@@ -16,7 +16,25 @@ class CustomJWTAuthentication(JWTAuthentication):
     
     This extends the default JWTAuthentication to ensure proper user
     identification from JWT tokens.
+    
+    For endpoints with AllowAny permission, invalid tokens are gracefully
+    ignored (returns None) instead of raising an error.
     """
+    
+    def authenticate(self, request):
+        """
+        Override authenticate to gracefully handle invalid tokens.
+        
+        If token is invalid/expired, return None (anonymous user) instead
+        of raising an exception. This allows AllowAny endpoints to work
+        even when clients send stale tokens.
+        """
+        try:
+            return super().authenticate(request)
+        except (InvalidToken, TokenError):
+            # Return None for invalid tokens - let permission classes decide
+            # This allows AllowAny endpoints to work with invalid/expired tokens
+            return None
     
     def get_user(self, validated_token):
         """
