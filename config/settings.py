@@ -22,11 +22,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', '-kcigg-!p659s8y@b=981p3w!ll^c7*b$*9c@0%(f1
 
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-# Allow all hosts for development/testing - restrict in production
-# For testing: explicitly allow server IP and all hosts
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,193.160.119.196,legacy.classicprogrammers.com,*').split(',')
-# Note: '*' allows all hosts for testing only - restrict in production
-# For production, use: ALLOWED_HOSTS = ['your-domain.com', 'api.your-domain.com', '193.160.119.196']
 
 
 # Application definition
